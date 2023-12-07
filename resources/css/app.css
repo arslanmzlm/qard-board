@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.is-invalid {
+    @apply text-red-600 text-sm mt-2
+}
