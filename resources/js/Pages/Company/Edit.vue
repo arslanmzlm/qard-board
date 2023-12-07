@@ -6,6 +6,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import {formatIncompletePhoneNumber} from "libphonenumber-js";
 import Toastify from "toastify-js";
 import colors from "tailwindcss/colors.js";
+import _ from "lodash";
 
 const {company, logoPath, coverPath, banks, platforms} = defineProps({
     company: Object,
@@ -49,13 +50,13 @@ const form = useForm({
 
 banks.forEach((bank) => {
     let account = company.bank_accounts.find((item) => {
-        return item.bank_id === bank.id;
+        return _.parseInt(item.bank_id) === _.parseInt(bank.id);
     });
 
     form.bank_accounts.push({
         id: null,
         bank_name: bank.name,
-        bank_id: bank.id,
+        bank_id: _.parseInt(bank.id),
         iban: account ? account.iban : "",
         name: account ? account.name : "",
     });
@@ -63,13 +64,13 @@ banks.forEach((bank) => {
 
 platforms.forEach((platform) => {
     let account = company.platform_accounts.find((item) => {
-        return item.platform_id === platform.id;
+        return _.parseInt(item.platform_id) === _.parseInt(platform.id);
     });
 
     form.platform_accounts.push({
         id: null,
         name: platform.name,
-        platform_id: platform.id,
+        platform_id: _.parseInt(platform.id),
         link: account ? account.link : "",
     });
 });
