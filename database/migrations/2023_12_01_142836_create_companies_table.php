@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->string('slug')->unique();
             $table->string('logo')->nullable();
             $table->string('cover')->nullable();
-            $table->text('qrcode')->nullable()->unique();
+            $table->text('qrcode')->nullable();
             $table->text('theme')->nullable();
             $table->string('title');
             $table->string('subtitle')->nullable();
