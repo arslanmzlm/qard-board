@@ -81,9 +81,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Company extends Model
 {
-    const THEME_GRAY = "gray";
+    const THEME_GRAY = 'gray';
 
-    const THEME_RED = "red";
+    const THEME_RED = 'red';
 
     const DEFAULT_THEME = Company::THEME_GRAY;
 
@@ -92,17 +92,13 @@ class Company extends Model
         Company::THEME_RED,
     ];
 
-    const STATE_CREATED = "created";
+    const STATE_CREATED = 'created';
 
-    const STATE_ACTIVE = "active";
+    const STATE_ACTIVE = 'active';
 
-    const STATE_PASSIVE = "passive";
-
-    const LOGO_STORAGE_PATH = 'public/images/company/logos';
+    const STATE_PASSIVE = 'passive';
 
     const LOGO_PATH = 'images/company/logos';
-
-    const COVER_STORAGE_PATH = 'public/images/company/covers';
 
     const COVER_PATH = 'images/company/covers';
 

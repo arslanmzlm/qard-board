@@ -25,8 +25,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Bank extends Model
 {
-    const LOGO_STORAGE_PATH = 'public/images/bank/logos';
-
     const LOGO_PATH = 'images/bank/logos';
 
     protected $guarded = [];

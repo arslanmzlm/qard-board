@@ -178,9 +178,9 @@
 
         </div>
 
-        <div class="my-8 bg-slate-300 h-[2px]"></div>
-
         @if ($company->platformAccounts()->exists())
+            <div class="my-8 bg-slate-300 h-[2px]"></div>
+
             <div
                 class="text-center text-2xl font-bold text-slate-800">{{ $company->platforms_title ?? trans('messages.company.defaults.platforms_title') }}</div>
             <div class="mt-3 flex flex-wrap justify-center gap-4">
@@ -195,9 +195,9 @@
             </div>
         @endif
 
-        <div class="my-8 bg-slate-300 h-[2px]"></div>
-
         @if ($company->bankAccounts()->exists())
+            <div class="my-8 bg-slate-300 h-[2px]"></div>
+
             <div
                 class="text-center text-2xl font-bold text-slate-800">{{ $company->banks_title ?? trans('messages.company.defaults.banks_title') }}</div>
             <div class="mt-3 space-y-6">

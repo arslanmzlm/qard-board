@@ -36,7 +36,7 @@ class PlatformController extends Controller
 
         if (isset($validated['logo']) && $file = $request->file('logo')) {
             $fileName = Str::slug($platform->name) . '-' . rand(10000, 99999) . '.' . $file->extension();
-            $file->storeAs(Platform::LOGO_STORAGE_PATH, $fileName);
+            $file->storePubliclyAs(Platform::LOGO_PATH, $fileName);
             $platform->logo = $fileName;
         }
 
@@ -65,7 +65,7 @@ class PlatformController extends Controller
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
             $fileName = Str::slug($platform->name) . '-' . rand(10000, 99999) . '.' . $file->extension();
-            $file->storeAs(Platform::LOGO_STORAGE_PATH, $fileName);
+            $file->storePubliclyAs(Platform::LOGO_PATH, $fileName);
             $platform->logo = $fileName;
         }
 

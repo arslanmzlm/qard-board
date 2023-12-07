@@ -206,13 +206,13 @@ class CompanyController extends Controller
 
         if (isset($validated['logo']) && $file = $request->file('logo')) {
             $fileName = Str::slug($company->name) . '-' . rand(10000, 99999) . '.' . $file->extension();
-            $file->storeAs(Company::LOGO_STORAGE_PATH, $fileName);
+            $file->storePubliclyAs(Company::LOGO_PATH, $fileName);
             $company->logo = $fileName;
         }
 
         if (isset($validated['cover']) && $file = $request->file('cover')) {
             $fileName = Str::slug($company->name) . '-' . rand(10000, 99999) . '.' . $file->extension();
-            $file->storeAs(Company::COVER_STORAGE_PATH, $fileName);
+            $file->storePubliclyAs(Company::COVER_PATH, $fileName);
             $company->cover = $fileName;
         }
 

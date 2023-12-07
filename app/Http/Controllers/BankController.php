@@ -36,7 +36,7 @@ class BankController extends Controller
 
         if (isset($validated['logo']) && $file = $request->file('logo')) {
             $fileName = Str::slug($bank->name) . '-' . rand(10000, 99999) . '.' . $file->extension();
-            $file->storePubliclyAs(Bank::LOGO_STORAGE_PATH, $fileName);
+            $file->storePubliclyAs(Bank::LOGO_PATH, $fileName);
             $bank->logo = $fileName;
         }
 
@@ -65,7 +65,7 @@ class BankController extends Controller
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
             $fileName = Str::slug($bank->name) . '-' . rand(10000, 99999) . '.' . $file->extension();
-            $file->storePubliclyAs(Bank::LOGO_STORAGE_PATH, $fileName);
+            $file->storePubliclyAs(Bank::LOGO_PATH, $fileName);
             $bank->logo = $fileName;
         }
 
