@@ -16,13 +16,13 @@
 <body class="antialiased font-public">
 <div class="mx-auto bg-gray-50 pb-4 lg:my-5 lg:max-w-screen-sm lg:border">
     @if($company->cover)
-        <img src="{{ $company->cover_url }}" class="w-full" alt="{{ $company->title }} Cover">
+        <img src="{{ asset($company->cover_url) }}" class="w-full" alt="{{ $company->title }} Cover">
     @endif
 
     @if($company->logo)
         <div class="relative z-10 flex justify-center" style="margin-top: -12.5%;">
             <div class="grid h-36 w-36 place-items-center rounded-full bg-white p-6">
-                <img src="{{ $company->logo_url }}" class="w-full" alt="{{ $company->title }} Logo">
+                <img src="{{ asset($company->logo_url) }}" class="w-full" alt="{{ $company->title }} Logo">
             </div>
         </div>
     @endif
@@ -155,7 +155,7 @@
         <div class="mt-3 space-y-6">
             @foreach($company->bankAccounts as $account)
                 <div class="text-center">
-                    <img class="mx-auto h-14" src="{{ $account->bank->logo_url }}"
+                    <img class="mx-auto h-14" src="{{ asset($account->bank->logo_url) }}"
                          alt="{{ $account->bank->name }} Logo">
 
                     <div class="font-semibold mt-1.5">{{ $account->name }}</div>

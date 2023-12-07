@@ -28,7 +28,7 @@ const form = useForm({
     title: company.title,
     subtitle: company.subtitle,
     description: company.description,
-    phone: formatIncompletePhoneNumber(company.phone, "TR"),
+    phone: company.phone !== null ? formatIncompletePhoneNumber(company.phone, "TR") : company.phone,
     phone_title: company.phone_title,
     email: company.email,
     email_title: company.email_title,
