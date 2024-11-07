@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Bank;
-use App\Models\BankAccount;
 use App\Models\Company;
-use App\Models\Platform;
-use App\Models\PlatformAccount;
+use App\Models\CompanyField;
+use App\Models\Field;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -52,12 +50,10 @@ class CompanyController extends Controller
     {
         return Inertia::render('Company/Create', [
             'themes' => Company::THEMES,
-            'banks' => Bank::orderBy('name')->get(),
-            'platforms' => Platform::orderBy('name')->get(),
+            'fields' => Field::orderBy('name')->get(),
             'defaults' => [
                 'survey_title' => trans('messages.company.defaults.survey_title'),
-                'platforms_title' => trans('messages.company.defaults.platforms_title'),
-                'banks_title' => trans('messages.company.defaults.banks_title'),
+                'fields_title' => trans('messages.company.defaults.fields_title'),
                 'address_link_title' => trans('messages.company.defaults.address_link_title'),
             ],
         ]);
@@ -76,16 +72,14 @@ class CompanyController extends Controller
     public function edit(Company $company): Response
     {
         return Inertia::render('Company/Edit', [
-            'company' => $company->load(['bankAccounts', 'platformAccounts']),
+            'company' => $company->load('fields'),
             'themes' => Company::THEMES,
             'logoPath' => Company::LOGO_PATH,
             'coverPath' => Company::COVER_PATH,
-            'banks' => Bank::orderBy('name')->get(),
-            'platforms' => Platform::orderBy('name')->get(),
+            'fields' => Field::orderBy('name')->get(),
             'defaults' => [
                 'survey_title' => trans('messages.company.defaults.survey_title'),
-                'platforms_title' => trans('messages.company.defaults.platforms_title'),
-                'banks_title' => trans('messages.company.defaults.banks_title'),
+                'fields_title' => trans('messages.company.defaults.fields_title'),
                 'address_link_title' => trans('messages.company.defaults.address_link_title'),
             ],
         ]);
@@ -166,16 +160,14 @@ class CompanyController extends Controller
             'address_link_title' => 'nullable|string|max:255',
             'survey_link' => 'nullable|string|url|max:255',
             'survey_title' => 'nullable|string|max:255',
-            'banks_title' => 'nullable|string|max:255',
-            'platforms_title' => 'nullable|string|max:255',
+            'fields_title' => 'nullable|string|max:255',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:255',
             'meta_keywords' => 'nullable|string|max:255',
-            'bank_accounts.*.bank_id' => 'nullable|exists:banks,id',
-            'bank_accounts.*.iban' => 'nullable|string|max:255',
-            'bank_accounts.*.name' => 'nullable|string|max:255',
-            'platform_accounts.*.platform_id' => 'nullable|exists:platforms,id',
-            'platform_accounts.*.link' => 'nullable|string|url|max:255',
+            'fields.*.id' => 'nullable|exists:company_fields,id',
+            'fields.*.field_id' => 'nullable|exists:fields,id',
+            'fields.*.order' => 'nullable|numeric',
+            'fields.*.value' => 'nullable',
         ];
     }
 
@@ -198,8 +190,7 @@ class CompanyController extends Controller
         $company->address_link_title = $validated['address_link_title'];
         $company->survey_link = $validated['survey_link'];
         $company->survey_title = $validated['survey_title'];
-        $company->banks_title = $validated['banks_title'];
-        $company->platforms_title = $validated['platforms_title'];
+        $company->fields_title = $validated['fields_title'];
         $company->meta_title = $validated['meta_title'];
         $company->meta_description = $validated['meta_description'];
         $company->meta_keywords = $validated['meta_keywords'];
@@ -218,56 +209,41 @@ class CompanyController extends Controller
 
         $company->save();
 
-        if (isset($validated['bank_accounts'])) {
-            $bank_accounts = collect($validated['bank_accounts']);
+        if (isset($validated['fields'])) {
+            $fields = collect($validated['fields']);
 
-            foreach ($bank_accounts as $row) {
-                if (!empty($row['iban'])) {
+            foreach ($fields as $row) {
+                $value = $row['value'];
+
+                if (is_array($value)) {
+                    if (is_array(current($value))) {
+                        $value = array_map(function ($item) {
+                            return ['label' => $item['label'], 'value' => $item['value'], 'copy' => $item['copy'] ?? false];
+                        }, $value);
+                    } else {
+                        $value = array_filter($value, function ($item) {
+                            return !empty($item);
+                        });
+                    }
+                }
+
+                if (!empty($value)) {
                     $find = [
-                        'bank_id' => $row['bank_id'],
+                        'field_id' => $row['field_id'],
                         'company_id' => $company->id,
                     ];
 
                     $values = [
-                        'bank_id' => $row['bank_id'],
+                        'field_id' => $row['field_id'],
                         'company_id' => $company->id,
-                        'iban' => $row['iban'],
-                        'name' => $row['name'],
+                        'value' => $value,
+                        'order' => $row['order'] ?? 1,
                     ];
 
-                    BankAccount::updateOrCreate($find, $values);
+                    CompanyField::updateOrCreate($find, $values);
+                } else if (!empty($row['id'])) {
+                    CompanyField::find($row['id'])->delete();
                 }
-            }
-
-            if ($company->bankAccounts()->exists()) {
-                $ids = $bank_accounts->whereNotNull('iban')->pluck('bank_id');
-                $company->bankAccounts()->whereNotIn('bank_id', $ids)->delete();
-            }
-        }
-
-        if (isset($validated['platform_accounts'])) {
-            $platform_accounts = collect($validated['platform_accounts']);
-
-            foreach ($validated['platform_accounts'] as $row) {
-                if (!empty($row['link'])) {
-                    $find = [
-                        'platform_id' => $row['platform_id'],
-                        'company_id' => $company->id,
-                    ];
-
-                    $values = [
-                        'platform_id' => $row['platform_id'],
-                        'company_id' => $company->id,
-                        'link' => $row['link'],
-                    ];
-
-                    PlatformAccount::updateOrCreate($find, $values);
-                }
-            }
-
-            if ($company->platformAccounts()->exists()) {
-                $ids = $platform_accounts->whereNotNull('link')->pluck('platform_id');
-                $company->platformAccounts()->whereNotIn('platform_id', $ids)->delete();
             }
         }
     }

@@ -13,6 +13,7 @@ class PublicController extends Controller
 
         return view("cards/{$theme}", [
             'company' => $company,
+            'fields' => $company->fields()->orderBy('order')->get(),
         ]);
     }
 
@@ -22,6 +23,7 @@ class PublicController extends Controller
 
         return view("cards/{$theme}", [
             'company' => $company,
+            'fields' => $company->fields()->orderBy('order')->get(),
         ]);
     }
 }

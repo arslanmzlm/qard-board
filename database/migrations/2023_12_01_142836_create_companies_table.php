@@ -34,8 +34,7 @@ return new class extends Migration {
             $table->string('address_link_title')->nullable();
             $table->string('survey_link')->nullable();
             $table->string('survey_title')->nullable();
-            $table->string('banks_title')->nullable();
-            $table->string('platforms_title')->nullable();
+            $table->string('fields_title')->nullable();
             $table->string('meta_title')->nullable();
             $table->string('meta_description')->nullable();
             $table->string('meta_keywords')->nullable();

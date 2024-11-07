@@ -212,7 +212,8 @@ return [
         'survey_title' => 'Anket başlığı',
         'banks_title' => 'Bankalar alanı başlığı',
         'platforms_title' => 'Platformlar alanı başlığı',
-        'theme' => 'Tema'
+        'theme' => 'Tema',
+        'type' => 'Tip'
     ],
 
 ];

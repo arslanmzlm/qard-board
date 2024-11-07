@@ -7,27 +7,31 @@ import Modal from "@/Components/Modal.vue";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from "@/Components/Pagination.vue";
 import {formatDateToLocale} from "@/Core/helpers.js";
+import {getTypeTitle} from "@/utilities.js";
 
-defineProps({banks: Object, logoPath: String});
+defineProps({
+    fields: Object,
+    logoPath: String
+});
 
 const selectedForDeletion = ref(null);
 </script>
 
 <template>
-    <Head title="Bankalar"/>
+    <Head title="Alanlar"/>
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">Bankalar</h2>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800">Alanlar</h2>
         </template>
 
         <div class="py-8">
             <div class="mx-auto max-w-screen-2xl sm:px-6 lg:px-8">
                 <div class="mb-4 text-end">
                     <Link
-                        :href="route('bank.create')"
+                        :href="route('field.create')"
                         class="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:bg-gray-900"
-                    >Banka Ekle
+                    >Alan Ekle
                     </Link
                     >
                 </div>
@@ -44,7 +48,10 @@ const selectedForDeletion = ref(null);
                                 Logo
                             </th>
                             <th class="whitespace-nowrap border border-slate-300 p-4 text-center text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                                Banka
+                                Platform
+                            </th>
+                            <th class="whitespace-nowrap border border-slate-300 p-4 text-center text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                                Tip
                             </th>
                             <th class="whitespace-nowrap border border-slate-300 p-4 text-center text-slate-500 dark:border-slate-700 dark:text-slate-400">
                                 Son Düzenlenme Tarihi
@@ -55,25 +62,29 @@ const selectedForDeletion = ref(null);
                         </tr>
                         </thead>
                         <tbody>
-                        <tr v-for="(bank, index) in banks.data" :key="bank.id">
-                            <th scope="row" class="whitespace-nowrap border border-slate-300 p-4 text-center text-slate-500 dark:border-slate-700 dark:text-slate-600">
-                                {{ banks.from + index }}
+                        <tr v-for="(field, index) in fields.data" :key="field.id">
+                            <th scope="row"
+                                class="whitespace-nowrap border border-slate-300 p-4 text-center text-slate-500 dark:border-slate-700 dark:text-slate-600">
+                                {{ fields.from + index }}
                             </th>
                             <td class="whitespace-nowrap border border-slate-300 p-4 text-center text-slate-500 dark:border-slate-700 dark:text-slate-600">
-                                <img v-if="bank.logo" class="mx-auto max-h-20 max-w-sm"
-                                     :src="`/${logoPath}/${bank.logo}`" :alt="bank.name">
+                                <img v-if="field.logo" class="mx-auto max-h-20 max-w-sm"
+                                     :src="`/${logoPath}/${field.logo}`" :alt="field.name">
                             </td>
                             <td class="whitespace-nowrap border border-slate-300 p-4 text-center text-slate-500 dark:border-slate-700 dark:text-slate-600">
-                                {{ bank.name }}
+                                {{ field.name }}
                             </td>
                             <td class="whitespace-nowrap border border-slate-300 p-4 text-center text-slate-500 dark:border-slate-700 dark:text-slate-600">
-                                {{ formatDateToLocale(bank.updated_at) }}
+                                {{ getTypeTitle(field.type) }}
+                            </td>
+                            <td class="whitespace-nowrap border border-slate-300 p-4 text-center text-slate-500 dark:border-slate-700 dark:text-slate-600">
+                                {{ formatDateToLocale(field.updated_at) }}
                             </td>
                             <td class="whitespace-nowrap border border-slate-300 p-4 text-center text-slate-500 dark:border-slate-700 dark:text-slate-600">
                                 <div class="text-center space-x-4">
-                                    <DangerButton @click="selectedForDeletion = bank">Sil</DangerButton>
+                                    <DangerButton @click="selectedForDeletion = field">Sil</DangerButton>
                                     <Link
-                                        :href="route('bank.edit', {bank})"
+                                        :href="route('field.edit', {field})"
                                         class="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:bg-gray-900"
                                     >Düzenle
                                     </Link
@@ -84,7 +95,7 @@ const selectedForDeletion = ref(null);
                         </tbody>
                     </table>
 
-                    <pagination v-if="banks.last_page > 1" :links="banks.links"></pagination>
+                    <pagination v-if="fields.last_page > 1" :links="fields.links"></pagination>
                 </div>
             </div>
         </div>
@@ -108,7 +119,7 @@ const selectedForDeletion = ref(null);
                     class="inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out ms-3 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 active:bg-red-700"
                     method="post"
                     as="button"
-                    :href="route('bank.destroy', {bank: selectedForDeletion})"
+                    :href="route('field.destroy', {field: selectedForDeletion})"
                     @click="selectedForDeletion = null"
                 >
                     Sil

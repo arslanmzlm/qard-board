@@ -79,14 +79,8 @@ if (page.props.toast) {
                             </div>
 
                             <div class="hidden space-x-8 sm:ms-10 sm:-my-px sm:flex">
-                                <NavLink :href="route('bank.list')" :active="route().current('bank.list')">
-                                    Bankalar
-                                </NavLink>
-                            </div>
-
-                            <div class="hidden space-x-8 sm:ms-10 sm:-my-px sm:flex">
-                                <NavLink :href="route('platform.list')" :active="route().current('platform.list')">
-                                    Platformlar
+                                <NavLink :href="route('field.list')" :active="route().current('field.list')">
+                                    Alanlar
                                 </NavLink>
                             </div>
                         </div>
@@ -174,11 +168,8 @@ if (page.props.toast) {
                         <ResponsiveNavLink :href="route('company.list')" :active="route().current('company.list')">
                             Firmalar
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('bank.list')" :active="route().current('bank.list')">
+                        <ResponsiveNavLink :href="route('field.list')" :active="route().current('field.list')">
                             Bankalar
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('platform.list')" :active="route().current('platform.list')">
-                            Platformlar
                         </ResponsiveNavLink>
                     </div>
 

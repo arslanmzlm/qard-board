@@ -130,46 +130,107 @@
                 </div>
             @endif
         </div>
+
+        @if ($company->fields->count())
+            <div
+                class="mt-8 text-center text-2xl font-bold text-slate-800">{{ $company->fields_title ?? trans('messages.company.defaults.fields_title') }}</div>
+            <div class="mt-3 flex flex-wrap justify-center gap-y-6">
+                @foreach($company->fields as $item)
+                    @if($item->field->type === \App\Models\Field::TYPE_BASIC)
+                        <div class="w-1/3">
+                            <a href="{{ $item->value }}" target="_blank" rel="nofollow"
+                               class="block text-center transition-transform duration-300 hover:scale-125">
+                                <img class="mx-auto mb-2 h-16 rounded-lg border bg-white p-3 shadow-xl"
+                                     src="{{ $item->field->logo_url }}"
+                                     alt="{{ $item->field->name }} Logo">
+                                {{$item->field->name}}
+                            </a>
+                        </div>
+                    @elseif($item->field->type === \App\Models\Field::TYPE_BANK)
+                        <div class="w-1/3">
+                            <button
+                                class="block text-center transition-transform duration-300 bank-btn hover:scale-125 w-full"
+                                data-title="{{ $item->field->name }}" data-name="{{ $item->value['name'] }}"
+                                data-iban="{{ $item->value['iban'] }}">
+                                <img class="mx-auto mb-2 h-16 rounded-lg border bg-white p-3 shadow-xl"
+                                     src="{{ $item->field->logo_url }}"
+                                     alt="{{ $item->field->name }} Logo">
+                                {{ $item->field->name }}
+                            </button>
+                        </div>
+                    @elseif($item->field->type === \App\Models\Field::TYPE_CARD)
+                        <div class="w-1/3">
+                            <button
+                                class="block text-center transition-transform duration-300 card-btn hover:scale-125 w-full"
+                                data-title="{{ $item->field->name }}" data-value="{{ json_encode($item->value) }}">
+                                <img class="mx-auto mb-2 h-16 rounded-lg border bg-white p-3 shadow-xl"
+                                     src="{{ $item->field->logo_url }}"
+                                     alt="{{ $item->field->name }} Logo">
+                                {{ $item->field->name }}
+                            </button>
+                        </div>
+                    @endif
+                @endforeach
+            </div>
+        @endif
     </div>
+</div>
 
-    @if ($company->platformAccounts()->exists())
-        <div
-            class="mt-8 text-center text-2xl font-bold text-slate-800">{{ $company->platforms_title ?? trans('messages.company.defaults.platforms_title') }}</div>
-        <div class="mt-3 flex flex-wrap justify-center gap-4">
-            @foreach($company->platformAccounts as $account)
-                <a href="{{ $account->link }}" target="_blank"
-                   class="rounded-full transition-transform duration-300 hover:scale-125"
-                   title="{{$account->platform->name}}">
-                    <img class="h-[4.125rem]" src="{{ $account->platform->logo_url }}"
-                         alt="{{ $account->platform->name }} Logo">
-                </a>
-            @endforeach
-        </div>
-    @endif
-
-    @if ($company->bankAccounts()->exists())
-        <div class="my-8 bg-slate-300 h-[2px]"></div>
-
-        <div
-            class="text-center text-2xl font-bold text-slate-800">{{ $company->banks_title ?? trans('messages.company.defaults.banks_title') }}</div>
-        <div class="mt-3 space-y-6">
-            @foreach($company->bankAccounts as $account)
-                <div class="text-center">
-                    <img class="mx-auto h-14" src="{{ asset($account->bank->logo_url) }}"
-                         alt="{{ $account->bank->name }} Logo">
-
-                    <div class="font-semibold mt-1.5">{{ $account->name }}</div>
-
-                    <button
-                        class="border border-transparent bg-red-600 px-8 py-2 text-sm font-semibold tracking-widest text-white transition duration-150 ease-in-out clipboard-btn mt-1.5 hover:bg-red-500 focus:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 active:bg-red-700"
-                        data-clipboard-text="{{ $account->iban }}">
-                        IBAN'ı Kopyala
+<div id="bankModal" class="fixed top-0 right-0 bottom-0 left-0 z-10 hidden place-items-center modal">
+    <div id="bankModalBack" class="absolute inset-0 bg-gray-700/50 modal-back"></div>
+    <div class="relative z-20 rounded bg-white p-10 min-w-[35rem] modal-body">
+        <div id="bankModalBody" class="space-y-4">
+            <h2 id="bankModalTitle" class="text-center text-4xl font-bold"></h2>
+            <div>
+                <div class="mb-2 text-xl font-bold text-blue-600">Hesap Adı</div>
+                <div id="bankModalName" class="flex items-center text-lg">
+                    <span class="mr-1"></span>
+                    <button type="button" class="clipboard-btn" data-clipboard-text="">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="size-5">
+                            <path
+                                d="M15 3V6.4C15 6.96005 15 7.24008 15.109 7.45399C15.2049 7.64215 15.3578 7.79513 15.546 7.89101C15.7599 8 16.0399 8 16.6 8H20M10 8H6C4.89543 8 4 8.89543 4 10V19C4 20.1046 4.89543 21 6 21H12C13.1046 21 14 20.1046 14 19V16M16 3H13.2C12.0799 3 11.5198 3 11.092 3.21799C10.7157 3.40973 10.4097 3.71569 10.218 4.09202C10 4.51984 10 5.0799 10 6.2V12.8C10 13.9201 10 14.4802 10.218 14.908C10.4097 15.2843 10.7157 15.5903 11.092 15.782C11.5198 16 12.0799 16 13.2 16H16.8C17.9201 16 18.4802 16 18.908 15.782C19.2843 15.5903 19.5903 15.2843 19.782 14.908C20 14.4802 20 13.9201 20 12.8V7L16 3Z"
+                                stroke="#000000" stroke-width="2" stroke-linejoin="round" class="stroke-gray-700"/>
+                        </svg>
                     </button>
                 </div>
-            @endforeach
+            </div>
+            <div>
+                <div class="mb-2 text-xl font-bold text-blue-600">IBAN</div>
+                <div id="bankModalIban" class="flex items-center text-lg">
+                    <span class="mr-1"></span>
+                    <button type="button" class="clipboard-btn" data-clipboard-text="">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="size-5">
+                            <path
+                                d="M15 3V6.4C15 6.96005 15 7.24008 15.109 7.45399C15.2049 7.64215 15.3578 7.79513 15.546 7.89101C15.7599 8 16.0399 8 16.6 8H20M10 8H6C4.89543 8 4 8.89543 4 10V19C4 20.1046 4.89543 21 6 21H12C13.1046 21 14 20.1046 14 19V16M16 3H13.2C12.0799 3 11.5198 3 11.092 3.21799C10.7157 3.40973 10.4097 3.71569 10.218 4.09202C10 4.51984 10 5.0799 10 6.2V12.8C10 13.9201 10 14.4802 10.218 14.908C10.4097 15.2843 10.7157 15.5903 11.092 15.782C11.5198 16 12.0799 16 13.2 16H16.8C17.9201 16 18.4802 16 18.908 15.782C19.2843 15.5903 19.5903 15.2843 19.782 14.908C20 14.4802 20 13.9201 20 12.8V7L16 3Z"
+                                stroke="#000000" stroke-width="2" stroke-linejoin="round" class="stroke-gray-700"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
-    @endif
+        <div class="mt-2 text-center">
+            <button type="button"
+                    class="rounded-md border border-transparent bg-gray-800 px-8 py-2 text-sm font-semibold tracking-widest text-white transition duration-150 ease-in-out close mt-1.5 hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:bg-gray-900">
+                Kapat
+            </button>
+        </div>
+    </div>
+</div>
 
+<div id="cardModal" class="fixed top-0 right-0 bottom-0 left-0 z-10 hidden place-items-center modal">
+    <div id="cardModalBack" class="absolute inset-0 bg-gray-700/50 modal-back"></div>
+    <div class="relative z-20 rounded bg-white p-10 min-w-[35rem] modal-body">
+        <div id="cardModalBody" class="space-y-4">
+            <h2 id="cardModalTitle" class="text-center text-4xl font-bold"></h2>
+            <div id="cardModalFields" class="space-y-4"></div>
+        </div>
+        <div class="mt-2 text-center">
+            <button type="button"
+                    class="rounded-md border border-transparent bg-gray-800 px-8 py-2 text-sm font-semibold tracking-widest text-white transition duration-150 ease-in-out close mt-1.5 hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:bg-gray-900">
+                Kapat
+            </button>
+        </div>
+    </div>
 </div>
 </body>
 </html>

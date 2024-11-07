@@ -30,33 +30,30 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $address_link_title
  * @property string|null $survey_link
  * @property string|null $survey_title
- * @property string|null $banks_title
- * @property string|null $platforms_title
+ * @property string|null $fields_title
  * @property string|null $meta_title
  * @property string|null $meta_description
  * @property string|null $meta_keywords
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankAccount> $bankAccounts
- * @property-read int|null $bank_accounts_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyField> $fields
+ * @property-read int|null $fields_count
  * @property-read string $address_text
  * @property-read string $cover_url
  * @property-read string $description_text
  * @property-read string $logo_url
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PlatformAccount> $platformAccounts
- * @property-read int|null $platform_accounts_count
  * @method static \Illuminate\Database\Eloquent\Builder|Company newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Company newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Company query()
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereAddress($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereAddressLink($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereAddressLinkTitle($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereBanksTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereCover($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereEmailTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereFieldsTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereLogo($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereMetaDescription($value)
@@ -65,7 +62,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company wherePhone($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company wherePhoneTitle($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePlatformsTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereQrcode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereSlug($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereState($value)
@@ -85,11 +81,11 @@ class Company extends Model
 
     const THEME_RED = 'red';
 
-    const DEFAULT_THEME = Company::THEME_GRAY;
+    const DEFAULT_THEME = self::THEME_GRAY;
 
     const THEMES = [
-        Company::THEME_GRAY,
-        Company::THEME_RED,
+        self::THEME_GRAY,
+        self::THEME_RED,
     ];
 
     const STATE_CREATED = 'created';
@@ -104,24 +100,19 @@ class Company extends Model
 
     protected $guarded = [];
 
-    public function bankAccounts(): HasMany
+    public function fields(): HasMany
     {
-        return $this->hasMany(BankAccount::class);
-    }
-
-    public function platformAccounts(): HasMany
-    {
-        return $this->hasMany(PlatformAccount::class);
+        return $this->hasMany(CompanyField::class)->orderBy('order');
     }
 
     public function getLogoUrlAttribute(): string
     {
-        return "/" . Company::LOGO_PATH . "/" . $this->logo;
+        return "/" . self::LOGO_PATH . "/" . $this->logo;
     }
 
     public function getCoverUrlAttribute(): string
     {
-        return "/" . Company::COVER_PATH . "/" . $this->cover;
+        return "/" . self::COVER_PATH . "/" . $this->cover;
     }
 
     public function getDescriptionTextAttribute(): string

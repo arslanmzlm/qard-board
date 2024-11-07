@@ -20,33 +20,20 @@ return [
         ],
         'defaults' => [
             'survey_title' => 'Bizi Değerlendirin',
-            'platforms_title' => 'Takipte Kalın',
-            'banks_title' => 'Banka Hesaplarımız',
+            'fields_title' => 'Takipte Kalın',
             'address_link_title' => 'Yol tarifi almak için tıklayınız',
         ]
     ],
-    'bank' => [
+    'field' => [
         'create' => [
-            'success' => 'Banka başarıyla eklendi',
+            'success' => 'Alan başarıyla eklendi',
         ],
         'update' => [
-            'success' => 'Banka bilgileri başarıyla düzenlendi',
+            'success' => 'Alan bilgileri başarıyla düzenlendi',
         ],
         'destroy' => [
-            'success' => 'Banka başarıyla silindi',
-            'error' => 'Banka verisi silinirken hata meydana geldi, lütfen daha sonra tekrar deneyiniz veya sistem yetkilileri ile iletişime geçiniz',
-        ],
-    ],
-    'platform' => [
-        'create' => [
-            'success' => 'Platform başarıyla eklendi',
-        ],
-        'update' => [
-            'success' => 'Platform bilgileri başarıyla düzenlendi',
-        ],
-        'destroy' => [
-            'success' => 'Platform başarıyla silindi',
-            'error' => 'Platform verisi silinirken hata meydana geldi, lütfen daha sonra tekrar deneyiniz veya sistem yetkilileri ile iletişime geçiniz',
+            'success' => 'Alan başarıyla silindi',
+            'error' => 'Alan verisi silinirken hata meydana geldi, lütfen daha sonra tekrar deneyiniz veya sistem yetkilileri ile iletişime geçiniz',
         ],
     ],
 ];

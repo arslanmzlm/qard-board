@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\BankController;
+use App\Http\Controllers\FieldController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PlatformController;
@@ -19,15 +19,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-//Route::get('/', function () {
-//    return Inertia::render('Welcome', [
-//        'canLogin' => Route::has('login'),
-//        'canRegister' => Route::has('register'),
-//        'laravelVersion' => Application::VERSION,
-//        'phpVersion' => PHP_VERSION,
-//    ]);
-//});
-
 Route::middleware(['auth'])
     ->prefix('/admin')
     ->group(function () {
@@ -36,19 +27,12 @@ Route::middleware(['auth'])
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-        Route::get('banks', [BankController::class, 'list'])->name('bank.list');
-        Route::get('bank/create', [BankController::class, 'create'])->name('bank.create');
-        Route::post('bank/store', [BankController::class, 'store'])->name('bank.store');
-        Route::get('bank/edit/{bank}', [BankController::class, 'edit'])->name('bank.edit');
-        Route::post('bank/update/{bank}', [BankController::class, 'update'])->name('bank.update');
-        Route::post('bank/destroy/{bank}', [BankController::class, 'destroy'])->name('bank.destroy');
-
-        Route::get('platforms', [PlatformController::class, 'list'])->name('platform.list');
-        Route::get('platform/create', [PlatformController::class, 'create'])->name('platform.create');
-        Route::post('platform/store', [PlatformController::class, 'store'])->name('platform.store');
-        Route::get('platform/edit/{platform}', [PlatformController::class, 'edit'])->name('platform.edit');
-        Route::post('platform/update/{platform}', [PlatformController::class, 'update'])->name('platform.update');
-        Route::post('platform/destroy/{platform}', [PlatformController::class, 'destroy'])->name('platform.destroy');
+        Route::get('fields', [FieldController::class, 'list'])->name('field.list');
+        Route::get('field/create', [FieldController::class, 'create'])->name('field.create');
+        Route::post('field/store', [FieldController::class, 'store'])->name('field.store');
+        Route::get('field/edit/{field}', [FieldController::class, 'edit'])->name('field.edit');
+        Route::post('field/update/{field}', [FieldController::class, 'update'])->name('field.update');
+        Route::post('field/destroy/{field}', [FieldController::class, 'destroy'])->name('field.destroy');
 
         Route::get('companies', [CompanyController::class, 'list'])->name('company.list');
         Route::get('company/preview/{company}', [CompanyController::class, 'show'])->name('company.show');

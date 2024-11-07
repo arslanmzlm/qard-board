@@ -6,17 +6,17 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import {formatIncompletePhoneNumber} from "libphonenumber-js";
 import Toastify from "toastify-js";
 import colors from "tailwindcss/colors.js";
+import Checkbox from "@/Components/Checkbox.vue";
 import _ from "lodash";
 
-const {company, logoPath, coverPath, banks, platforms} = defineProps({
+const {company, fields, logoPath, coverPath} = defineProps({
     company: Object,
     themes: Array,
     logoPath: String,
     coverPath: String,
-    banks: Array,
-    platforms: Array,
-    defaults: Object,
+    fields: Array,
     errors: Object,
+    defaults: Object,
 });
 
 const form = useForm({
@@ -39,39 +39,50 @@ const form = useForm({
     address_link_title: company.address_link_title,
     survey_link: company.survey_link,
     survey_title: company.survey_title,
-    banks_title: company.banks_title,
-    platforms_title: company.platforms_title,
+    fields_title: company.fields_title,
     meta_title: company.meta_title,
     meta_description: company.meta_description,
     meta_keywords: company.meta_keywords,
-    bank_accounts: [],
-    platform_accounts: [],
+    fields: [],
 });
 
-banks.forEach((bank) => {
-    let account = company.bank_accounts.find((item) => {
-        return _.parseInt(item.bank_id) === _.parseInt(bank.id);
+fields.forEach((field) => {
+    let data = company.fields.find((item) => {
+        return _.parseInt(item.field_id) === _.parseInt(field.id);
     });
 
-    form.bank_accounts.push({
-        id: null,
-        bank_name: bank.name,
-        bank_id: _.parseInt(bank.id),
-        iban: account ? account.iban : "",
-        name: account ? account.name : "",
-    });
-});
+    let val = data ? data.value : null;
 
-platforms.forEach((platform) => {
-    let account = company.platform_accounts.find((item) => {
-        return _.parseInt(item.platform_id) === _.parseInt(platform.id);
-    });
+    if (val === null) {
+        if (field.type === 'field') {
+            val = '';
+        } else if (field.type === 'bank') {
+            val = {
+                iban: '',
+                name: '',
+            };
+        } else if (field.type === 'card') {
+            val = [];
+            if (field.values && Array.isArray(field.values) && field.values.length) {
+                field.values.forEach((item) => {
+                    val.push({
+                        label: item,
+                        value: '',
+                        copy: false,
+                    })
+                });
+            }
+        }
+    }
 
-    form.platform_accounts.push({
-        id: null,
-        name: platform.name,
-        platform_id: _.parseInt(platform.id),
-        link: account ? account.link : "",
+    form.fields.push({
+        id: data ? data.id : null,
+        field_type: field.type,
+        field_name: field.name,
+        field_id: field.id,
+        field_logo_url: field.logo_url,
+        order: data ? data.order : null,
+        value: val
     });
 });
 
@@ -375,74 +386,124 @@ watch(
                                        id="txtMetaKeywords" name="meta_keywords" type="text" autocomplete="off">
                                 <div class="is-invalid" v-if="errors.meta_keywords">{{ errors.meta_keywords }}</div>
                             </div>
-                            <div class="col-span-full -mx-6 bg-gray-800 p-4 pl-6 font-medium text-white">Banka
-                                Hesapları
-                            </div>
+                            <div class="col-span-full -mx-6 bg-gray-800 p-4 pl-6 font-medium text-white">Hesaplar</div>
                             <div class="col-span-full">
-                                <label for="txtBanksTitle">Banka Hesapları Alanı Başlığı</label>
-                                <input v-model="form.banks_title"
+                                <label for="txtBanksTitle">Hesaplar Alanı Başlığı</label>
+                                <input v-model="form.fields_title"
                                        class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                        id="txtBanksTitle" name="banks_title" type="text" autocomplete="off"
-                                       :placeholder="`Eğer boş bırakılırsa '${defaults.banks_title}' yazar`">
-                                <div class="is-invalid" v-if="errors.banks_title">{{ errors.banks_title }}</div>
+                                       :placeholder="`Eğer boş bırakılırsa '${defaults.fields_title}' yazar`">
+                                <div class="is-invalid" v-if="errors.fields_title">{{ errors.fields_title }}</div>
                             </div>
-                            <div v-for="(bank, index) in form.bank_accounts" :key="bank.bank_id" class="col-span-full">
-                                <input type="hidden" :name="`bank_accounts[${index}][bank_id]`" :value="bank.bank_id">
-                                <div class="text-lg font-bold">{{ bank.bank_name }}</div>
-                                <div class="grid gap-4 xl:grid-cols-3 xl:gap-6">
-                                    <div class="xl:col-span-1">
-                                        <label :for="`txtBankAccountIban${bank.bank_id}`">IBAN</label>
-                                        <input
-                                            v-model="bank.iban"
-                                            class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                            :id="`txtBankAccountIban${bank.bank_id}`"
-                                            :name="`bank_accounts[${index}][iban]`"
-                                            type="text"
-                                            autocomplete="off">
-                                        <div class="is-invalid" v-if="errors[`bank_accounts.${index}.iban`]">
-                                            {{ errors[`bank_accounts.${index}.iban`] }}
+                            <div class="text-xl col-span-full">
+                                Değerlerin doğru şekilde çalışması için kurallar;
+                                <ul class="list-disc pl-6">
+                                    <li>Telefon numaraları için başına "<b>tel:</b>" koymalısınız.</li>
+                                    <li>E-Posta adresleri için başına "<b>mailto:</b>" koymalısınız.</li>
+                                    <li>Geçerli bir url için "<b>http://</b>" veya "<b>https://</b>" ile başlamalı.</li>
+                                </ul>
+                            </div>
+                            <div class="col-span-full space-y-4">
+                                <div v-for="(field, index) in form.fields" :key="field.field_id"
+                                     class="p-5 border border-gray-200 rounded-md">
+                                    <input type="hidden" :name="`fields[${index}][field_id]`" :value="field.field_id">
+                                    <div class="text-lg font-bold">{{ field.field_name }}</div>
+
+                                    <img :src="field.field_logo_url" class="h-12 my-4 inline-block" alt="">
+
+                                    <div class="flex items-start gap-4 xl:gap-6">
+                                        <div>
+                                            <label :for="`numberFieldOrder${field.field_id}`">Sıra Numarası</label>
+                                            <input
+                                                v-model="field.order"
+                                                class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                :id="`numberFieldOrder${field.field_id}`"
+                                                :name="`fields[${index}][order]`"
+                                                type="number"
+                                                autocomplete="off">
+                                        </div>
+
+                                        <div v-if="field.field_type === 'basic'" class="flex-grow">
+                                            <label :for="`txtFieldValue${field.field_id}`">Değer</label>
+                                            <input
+                                                v-model="field.value"
+                                                class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                :id="`txtFieldValue${field.field_id}`"
+                                                :name="`fields[${index}][value]`"
+                                                type="text"
+                                                autocomplete="off">
+                                        </div>
+                                        <div v-else-if="field.field_type === 'bank'"
+                                             class="flex flex-grow gap-4 xl:gap-6">
+                                            <div class="flex-grow">
+                                                <label :for="`txtFieldBankIban${field.field_id}`">IBAN</label>
+                                                <input
+                                                    v-model="field.value.iban"
+                                                    class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                    :id="`txtFieldBankIban${field.field_id}`"
+                                                    :name="`fields[${index}][iban]`"
+                                                    type="text"
+                                                    autocomplete="off">
+                                                <div class="is-invalid" v-if="errors[`fields.${index}.iban`]">
+                                                    {{ errors[`fields.${index}.value.iban`] }}
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow">
+                                                <label :for="`txtFieldBankName${field.field_id}`">İsim</label>
+                                                <input
+                                                    v-model="field.value.name"
+                                                    class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                    :id="`txtFieldBankName${field.field_id}`"
+                                                    :name="`fields[${index}][name]`"
+                                                    type="text"
+                                                    autocomplete="off">
+                                                <div class="is-invalid" v-if="errors[`fields.${index}.name`]">
+                                                    {{ errors[`fields.${index}.value.name`] }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div v-else-if="field.field_type === 'card'"
+                                             class="flex-grow gap-4 xl:gap-6 space-y-3">
+                                            <div v-for="(row, valueIndex) in field.value" :key="valueIndex"
+                                                 class="flex-grow p-4 border border-gray-200 rounded-md">
+                                                <div>
+                                                    <label
+                                                        :for="`txtFieldInputLabel${field.field_id}${valueIndex}`">Başlık</label>
+                                                    <input
+                                                        v-model="row.label"
+                                                        class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                        :id="`txtFieldInputLabel${field.field_id}${valueIndex}`"
+                                                        :name="`fields[${index}][value][${valueIndex}][label]`"
+                                                        type="text"
+                                                        autocomplete="off">
+                                                </div>
+                                                <div class="mt-2">
+                                                    <label
+                                                        :for="`txtFieldInput${field.field_id}${valueIndex}`"
+                                                        class="mt-4">Değer</label>
+                                                    <input
+                                                        v-model="row.value"
+                                                        class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                        :id="`txtFieldInput${field.field_id}${valueIndex}`"
+                                                        :name="`fields[${index}][value][${valueIndex}][value]`"
+                                                        type="text"
+                                                        autocomplete="off">
+                                                    <div class="is-invalid"
+                                                         v-if="errors[`fields.${index}.value.${valueIndex}.value`]">
+                                                        {{ errors[`fields.${index}.value.${valueIndex}.value`] }}
+                                                    </div>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <Checkbox :checked="row.copy"
+                                                              :id="`chkFieldCopy${field.field_id}${valueIndex}`"
+                                                              :value="true" @update:checked="row.copy = !row.copy"/>
+                                                    <label :for="`chkFieldCopy${field.field_id}${valueIndex}`"
+                                                           class="ml-2">Kopyalanabilir</label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="xl:col-span-2">
-                                        <label :for="`txtBankAccountName${bank.bank_id}`">İsim</label>
-                                        <input
-                                            v-model="bank.name"
-                                            class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                            :id="`txtBankAccountName${bank.bank_id}`"
-                                            :name="`bank_accounts[${index}][name]`"
-                                            type="text"
-                                            autocomplete="off">
-                                        <div class="is-invalid" v-if="errors[`bank_accounts.${index}.name`]">
-                                            {{ errors[`bank_accounts.${index}.name`] }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-span-full -mx-6 bg-gray-800 p-4 pl-6 font-medium text-white">Platform
-                                Hesapları
-                            </div>
-                            <div class="col-span-full">
-                                <label for="txtPlatformsTitle">Platformlar Alanı Başlığı</label>
-                                <input v-model="form.platforms_title"
-                                       class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                       id="txtPlatformsTitle" name="platforms_title" type="text" autocomplete="off"
-                                       :placeholder="`Eğer boş bırakılırsa '${defaults.platforms_title}' yazar`">
-                                <div class="is-invalid" v-if="errors.platforms_title">{{ errors.platforms_title }}</div>
-                            </div>
-                            <div v-for="(platform, index) in form.platform_accounts" :key="platform.platform_id"
-                                 class="col-span-full">
-                                <input type="hidden" :name="`platform_accounts[${index}][platform_id]`"
-                                       :value="platform.platform_id">
-                                <label :for="`txtPlatformAccount${platform.platform_id}`">{{ platform.name }}
-                                    Linki</label>
-                                <input
-                                    v-model="platform.link"
-                                    class="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                    :id="`txtPlatformAccount${platform.platform_id}`"
-                                    :name="`platform_accounts[${index}][link]`" type="text"
-                                    autocomplete="off">
-                                <div class="is-invalid" v-if="errors[`platform_accounts.${index}.link`]">
-                                    {{ errors[`platform_accounts.${index}.link`] }}
+
                                 </div>
                             </div>
                         </div>
